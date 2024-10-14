@@ -1,0 +1,89 @@
+---
+title: "Data Analysis"
+author: "Dr. Kaung Myat Khant"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation: default
+  powerpoint_presentation: default
+  slidy_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      comment = "",
+                      warning = F,
+                      message = F)
+```
+
+## Let's see what we should do with the data we acquired
+
+Here, we've got simulated data of 10,000 users from dating apps such as **tinder**, **match** ,etc.
+
+```{r startup, include=FALSE}
+rm(list = ls())
+set.seed(123)
+data.male <- data.frame(gender = rep("male", n=100), age = sample(18:40,100,replace = T), match_age = sample(18:22, 100, replace = T) )
+data.female <- data.frame(gender = rep("female",n=100), age = sample(18:40, 100, replace = T))
+data.female$match_age <- data.female$age + sample(c(-3,-2,-1,0,1,2,3),100,replace = T)
+data.female$match_age <- replace(data.female$match_age,
+                                          data.female$match_age < 18,
+                                          18)
+data <- rbind(data.male, data.female)
+library(tidyverse)
+set.seed(111)
+data <- sample_n(data, 10000, replace = T)
+data <- data %>% 
+   mutate(id = 1:nrow(data)) %>% 
+   relocate(id, .before = everything())
+```
+
+## But the data is really messy
+
+```{r messy, include=TRUE}
+data %>% pivot_wider(id_cols = id,
+                     ,names_from = gender, values_from = c(age, match_age), values_fill = 99) %>% 
+  slice_head(n = 5) %>% 
+  knitr::kable()
+```
+
+## So we run a few codes to tidy up
+
+```data %>% pivot_wider(id_cols = id, names_from = gender, values_from = c(age, match_age), values_fill = 99) %>% pivot_longer(cols = -id, names_to = c(".value", "gender"), names_pattern = "(age|match_age)_(female|male)") %>% mutate(across(c(age, match_age), ~ na_if(., 99))) %>% filter(complete.cases(.))```
+
+
+## And we get this tidy data and now our data has meaning
+```{r tidy, include=TRUE}
+data %>%
+  pivot_wider(id_cols = id,
+              names_from = gender, 
+              values_from = c(age, match_age), 
+              values_fill = 99) %>%
+  pivot_longer(cols = -id,
+               names_to = c(".value", "gender"),
+               names_pattern = "(age|match_age)_(female|male)") %>%
+  mutate(across(c(age, match_age), ~ na_if(., 99))) %>% filter(complete.cases(.)) %>% 
+  slice_head(n=5) %>% knitr::kable(align = c("r","l","r","r"))
+```
+
+## We use statistics to see what we could know from our data
+$$matched\_age = \alpha + \beta_1 \times age + \beta_2 \times gender$$
+
+## And here is what we got
+```{r plot, include=TRUE}
+ggplot(data = data, mapping = aes(x = age, y = match_age, colour = gender))+
+  geom_smooth(linewidth = 1.5,se = F)+
+  scale_color_manual(values = c("pink","lightblue"))+
+  labs(
+    x = "Age of the dataing app users",
+    y = "Matched partners'age",
+    title = "Function between Age and Romantic Attraction",
+    subtitle = "Men tend to date younger women,\nwhile women tend to date men who are of a similar age",
+    colour = "Gender of the dating app user"
+  )+
+  theme(panel.grid = element_blank(),
+        panel.background = element_rect(fill = "wheat1", colour = "black"),
+        legend.position = "right")
+
+```
+
+# If you are interested, welcome to our profession
