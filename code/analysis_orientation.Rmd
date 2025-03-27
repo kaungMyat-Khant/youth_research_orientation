@@ -1,5 +1,5 @@
 ---
-title: "Data Analysis"
+title: "Basic Research Method"
 author: "Dr. Kaung Myat Khant"
 date: "`r Sys.Date()`"
 output:
