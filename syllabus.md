@@ -18,6 +18,6 @@
 4. Understanding Bias and Validity in Research (10 minutes)
   - Types of bias in research (random error, selection, information, confounding)
   - Strategies to reduce bias and ensure validity
-### Case studies (10 minutes): What method was used in the study you have read?
+##### Case studies (10 minutes): What method was used in the study you have read?
 
-### Methods: Interactive lecture, case studies
+##### Methods: Interactive lecture, case studies
