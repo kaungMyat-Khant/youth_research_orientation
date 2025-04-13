@@ -1,0 +1,187 @@
+---
+title: "Basic Research Methods"
+author: "Dr. Kaung Myat Khant"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation:
+    keep_md: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      comment = "",
+                      warning = F,
+                      message = F)
+```
+
+## Key Public Health Research Methods
+
+-   Reviews
+-   Quantitative approach 
+-   Qualitative approach 
+-   Mixed-method approach  
+
+## Reviews  
+-   Literature reviews
+-   Systematic reviews  
+
+## Quantitative approach  
+-   produce numeric answers
+-   take measurements and processed statistically
+-   make prediction
+-   establish relationships between the measured variables 
+-   start with hypothesis or theory
+-   end with deduction through analysis of collected data
+-   major resource for evidence-based practice  
+
+## Advantages and Disadvantages of Quantitative Approach  
+-   Advantages  
+    -   can produce objective answers
+    -   can generalize the results with a good design and conduct 
+-   Disadvantages
+    -   may require large sample size to make inference about population
+    -   focus on a narrow research question
+    -   require robust study design
+    
+## Quantitative study designs
+-   Descriptive study
+    -   Cross-sectional study  
+    -   Epidemiological surveys 
+-   Analytic study
+    -   Case control study
+    -   Cohort study
+-   Experimental study
+    -   Randomized controlled trial
+    -   Quasi experimental study
+    
+## Case study: quantitative research
+
+Let's say, we've collected data of 10,000 users from dating apps such as **tinder**, **match** ,etc.
+
+```{r startup, include=FALSE}
+rm(list = ls())
+set.seed(123)
+data.male <- data.frame(gender = rep("male", n=100), age = sample(18:40,100,replace = T), match_age = sample(18:22, 100, replace = T) )
+data.female <- data.frame(gender = rep("female",n=100), age = sample(18:40, 100, replace = T))
+data.female$match_age <- data.female$age + sample(c(-3,-2,-1,0,1,2,3),100,replace = T)
+data.female$match_age <- replace(data.female$match_age,
+                                          data.female$match_age < 18,
+                                          18)
+data <- rbind(data.male, data.female)
+library(tidyverse)
+set.seed(111)
+data <- sample_n(data, 10000, replace = T)
+data <- data %>% 
+   mutate(id = 1:nrow(data)) %>% 
+   relocate(id, .before = everything())
+```
+
+## But the data is really messy
+
+```{r messy, include=TRUE}
+data %>% pivot_wider(id_cols = id,
+                     ,names_from = gender, values_from = c(age, match_age), values_fill = 99) %>% 
+  slice_head(n = 5) %>% 
+  knitr::kable()
+```
+
+## So we run a few codes to tidy up
+
+`data %>% pivot_wider(id_cols = id, names_from = gender, values_from = c(age, match_age), values_fill = 99) %>% pivot_longer(cols = -id, names_to = c(".value", "gender"), names_pattern = "(age|match_age)_(female|male)") %>% mutate(across(c(age, match_age), ~ na_if(., 99))) %>% filter(complete.cases(.))`
+
+## And we get this tidy data and now our data has meaning
+
+```{r tidy, include=TRUE}
+data %>%
+  pivot_wider(id_cols = id,
+              names_from = gender, 
+              values_from = c(age, match_age), 
+              values_fill = 99) %>%
+  pivot_longer(cols = -id,
+               names_to = c(".value", "gender"),
+               names_pattern = "(age|match_age)_(female|male)") %>%
+  mutate(across(c(age, match_age), ~ na_if(., 99))) %>% filter(complete.cases(.)) %>% 
+  slice_head(n=5) %>% knitr::kable(align = c("r","l","r","r"))
+```
+
+## We use statistics to see what we could know from our data
+
+$$matched\_age = \alpha + \beta_1 \times age + \beta_2 \times gender$$
+
+## And here is what we got
+
+```{r plot, include=TRUE}
+ggplot(data = data, mapping = aes(x = age, y = match_age, colour = gender))+
+  geom_smooth(linewidth = 1.5,se = F)+
+  scale_color_manual(values = c("pink","lightblue"))+
+  labs(
+    x = "Age of the dataing app users",
+    y = "Matched partners'age",
+    title = "Function between Age and Romantic Attraction",
+    subtitle = "Men tend to date younger women,\nwhile women tend to date men who are of a similar age",
+    colour = "Gender of the dating app user"
+  )+
+  theme(panel.grid = element_blank(),
+        panel.background = element_rect(fill = "wheat1", colour = "black"),
+        legend.position = "right")
+
+```
+
+## Qualitative approach
+-   produce descriptions (words)
+-   explore feeling, understanding, experiences, etc
+-   observe and explain human behavior
+-   start with description about behavior, experience, feeling,etc
+-   end with induction of a theory to explain the findings
+-   process description into categories and themes 
+-   study designs may be dynamic
+
+
+## Advantages and disadvantages of Qualitative approach
+-   Advantages
+    -   can cover a broader aim and objective
+    -   small sample with in-depth data is enough for understanding
+    -   Themes produced can be transferred to similar context
+    -   can construct theory
+
+-   Disadvantages
+    -   subjective answers generated by researchers and study participants
+    -   results cannot be generalized because context is specific
+    -   dynamic study design may be intensive
+    
+## Qualitative study designs
+-   Qualitative interviews
+-   Focus group research
+-   Qualitative observational methods
+-   Ethnography
+-   Thematic analysis
+-   Grounded theory
+-   Nominal group technique
+-   Delphi process
+
+## Case study: Qualitative research
+Here, we’ve asked the women from Reddit what they expected on their first date
+
+## Some of their answers
+-   "Getting to know each other life: hobbies, work, funny stories, personality, values (not too deep for a first date but enough to make sure we align)"
+-   "I expect to be treated with courtesy and respect. I hope to get to know that person a bit better and see if we may be a good fit."
+-   "Basic human decency and just getting to know each other"
+-   "Many people have far too many expectations from a first date, when they should only really serve as a compatibility test. If something comes out of it, great, but never approach a first date expecting instant gratification."
+-   "To spend some time together, preferably over drinks, and see if there’s chemistry and a mutual interest in getting to know each other better."
+
+## Read, read, read and make manageable chunks
+|Code|Text|
+|:----:|:----|
+|Compatibility|Getting a good feel of my date’s personality and values, establish if there’s basic compatibility|
+|Getting to know each other|I hope to get to know that person a bit better|
+|Not instant gratification|never approach a first date expecting instant gratification|
+|Decent behavior|I expect to be treated with courtesy and respect|
+
+## Results
+
+```{r fishbone, include=TRUE, fig.align='center', fig.cap="Fishbone diagram showing women's expectation on first date"}
+fishbone <- imager::load.image("fishbone.png")
+plot(fishbone, axes = F)
+```
+  
