@@ -88,7 +88,12 @@ data %>% pivot_wider(id_cols = id,
 
 ## So we run a few codes to tidy up
 
-`data %>% pivot_wider(id_cols = id, names_from = gender, values_from = c(age, match_age), values_fill = 99) %>% pivot_longer(cols = -id, names_to = c(".value", "gender"), names_pattern = "(age|match_age)_(female|male)") %>% mutate(across(c(age, match_age), ~ na_if(., 99))) %>% filter(complete.cases(.))`
+`data %>% 
+pivot_longer(cols = -id, 
+names_to = c(".value", "gender"), 
+names_pattern = "(age|match_age)_(female|male)") %>% 
+mutate(across(c(age, match_age), ~ na_if(., 99))) %>% 
+filter(complete.cases(.))`
 
 ## And we get this tidy data and now our data has meaning
 
